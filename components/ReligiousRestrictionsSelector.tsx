@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 interface ReligiousRestrictionsSelectorProps {
-  onSelectRestriction: (restriction: string[]) => void;
+  onSelectRestriction: (restrictions: string[]) => void;
 }
 
 const ReligiousRestrictionsSelector: React.FC<
@@ -10,30 +10,34 @@ const ReligiousRestrictionsSelector: React.FC<
   const [selectedRestrictions, setSelectedRestrictions] = useState<string[]>(
     []
   );
-  const restrictions = ["Kosher", "Halal"];
 
-  const handleClick = (restriction: string) => {
-    const updatedRestrictions = selectedRestrictions.includes(restriction)
+  const handleSelectRestriction = (restriction: string) => {
+    const isSelected = selectedRestrictions.includes(restriction);
+    const newRestrictions = isSelected
       ? selectedRestrictions.filter((r) => r !== restriction)
       : [...selectedRestrictions, restriction];
 
-    setSelectedRestrictions(updatedRestrictions);
-    onSelectRestriction(updatedRestrictions);
+    setSelectedRestrictions(newRestrictions);
+    onSelectRestriction(newRestrictions);
   };
 
+  const restrictions = ["Halal", "Kosher", "Hindu", "Buddhist"];
+
   return (
-    <div className="mb-6">
-      <h2 className="text-lg font-semibold mb-2">
-        ¿Tienes algún tipo de restricción religiosa?
+    <div className="mb-4 w-full">
+      <h2 className="mb-2 text-xl text-center">
+        ¿Tienes alguna restricción religiosa?
       </h2>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 justify-center">
         {restrictions.map((restriction) => (
           <button
             key={restriction}
-            className={`btn ${
-              selectedRestrictions.includes(restriction) ? "btn-selected" : ""
+            onClick={() => handleSelectRestriction(restriction)}
+            className={`px-4 py-2 rounded-md btn ${
+              selectedRestrictions.includes(restriction)
+                ? "btn-selected"
+                : "btn-unselected"
             }`}
-            onClick={() => handleClick(restriction)}
           >
             {restriction}
           </button>

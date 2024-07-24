@@ -6,7 +6,6 @@ import TimeSelector from "../components/TimeSelector";
 import FoodTypeSelector from "../components/FoodTypeSelector";
 import DietaryRestrictionsSelector from "../components/DietaryRestrictionsSelector";
 import ReligiousRestrictionsSelector from "../components/ReligiousRestrictionsSelector";
-import Image from "next/image";
 
 export default function Chat() {
   const { error, messages, isLoading, setInput, handleSubmit, reload, stop } =
@@ -39,21 +38,21 @@ export default function Chat() {
       selectedReligiousRestrictions.length > 0
         ? `Religious Restrictions: ${selectedReligiousRestrictions.join(", ")},`
         : ""
-    }
-    Please include an image of the recipe.`;
+    }`;
 
     setInput(prompt);
     handleSubmit(new Event("submit"));
   };
 
-  const parseImageUrl = (text: string) => {
-    const urlMatch = text.match(/(https?:\/\/[^\s]+)/);
-    console.log(urlMatch);
-    return urlMatch ? urlMatch[0] : null;
+  const onReset = () => {
+    setSelectedTime(null);
+    setSelectedFoodType(null);
+    setSelectedDietaryRestrictions([]);
+    setSelectedReligiousRestrictions([]);
   };
 
   return (
-    <div className="flex flex-col w-full max-w-md py-24 mx-auto">
+    <div className="flex flex-col items-center w-full max-w-md py-24 mx-auto">
       <header className="mb-6 text-center">
         <h1 className="text-3xl font-bold">Recetario Inteligente</h1>
       </header>
@@ -67,9 +66,14 @@ export default function Chat() {
         onSelectRestriction={setSelectedReligiousRestrictions}
       />
 
-      <button onClick={onSubmit} className="btn">
-        Sugerir Receta
-      </button>
+      <div className="flex gap-4 mt-4">
+        <button onClick={onSubmit} className="btn">
+          Sugerir Receta
+        </button>
+        <button onClick={onReset} className="btn">
+          Reiniciar
+        </button>
+      </div>
 
       {isLoading && (
         <div className="mt-4 text-gray-500">
@@ -97,35 +101,25 @@ export default function Chat() {
         </div>
       )}
 
-      <div className="mt-4 p-4 bg-white rounded shadow">
+      <div className="mt-4 p-4 bg-white rounded shadow w-full">
         {messages
           .filter((m) => m.role === "assistant")
           .map((m) => {
-            const imageUrl = parseImageUrl(m.content);
-            const textWithoutImageUrl = imageUrl
-              ? m.content.replace(imageUrl, "").trim()
-              : m.content;
             return (
               <div key={m.id} className="whitespace-pre-wrap">
-                {textWithoutImageUrl}
-                {/* {imageUrl && (
-                  <div className="mt-4 relative w-full h-64">
-                    <Image
-                      src={imageUrl}
-                      alt="Recipe"
-                      layout="fill"
-                      objectFit="cover"
-                      className="rounded"
-                    />
-                  </div>
-                )} */}
+                <p className="text-lg font-medium mb-2">Respuesta del AI:</p>
+                <p className="p-4 bg-gray-100 rounded-md">{m.content}</p>
               </div>
             );
           })}
       </div>
 
       <footer className="mt-12 text-center text-gray-500">
-        © {new Date().getFullYear()} Camilo Oviedo. Almost all Rights Reserved.
+        © {new Date().getFullYear()}{" "}
+        <a href="https://www.camilooviedo.com/" className="hover:underline">
+          Camilo Oviedo
+        </a>
+        . Almost all Rights Reserved.
       </footer>
     </div>
   );
