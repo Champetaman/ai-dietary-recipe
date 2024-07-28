@@ -22,23 +22,36 @@ export default function Chat() {
 
   const onSubmit = () => {
     if (!selectedTime || !selectedFoodType) {
-      alert("Please select time and food type before submitting.");
+      alert(
+        "Por favor selecciona al menos un tiempo estimado y la comida que te gustaría comer."
+      );
       return;
     }
 
-    const prompt = `Suggest a recipe with the following criteria:
-    Time: ${selectedTime},
-    Food Type: ${selectedFoodType},
+    const prompt = `Sugiera una receta con los siguientes criterios:
+    1. **Tiempo:** ${selectedTime},
+    2. **Tipo de comida:** ${selectedFoodType},
     ${
       selectedDietaryRestrictions.length > 0
-        ? `Dietary Restrictions: ${selectedDietaryRestrictions.join(", ")},`
+        ? `3. **Restricción alimentaria:** ${selectedDietaryRestrictions.join(
+            ", "
+          )},`
         : ""
     }
     ${
       selectedReligiousRestrictions.length > 0
-        ? `Religious Restrictions: ${selectedReligiousRestrictions.join(", ")},`
+        ? `4. **Restricción religiosa:** ${selectedReligiousRestrictions.join(
+            ", "
+          )},`
         : ""
-    }`;
+    }
+    Por favor, proporcione una receta que se ajuste a los criterios mencionados anteriormente. Incluya lo siguiente en su respuesta:
+- **Nombre de la receta**
+- **Lista de ingredientes**
+- **Instrucciones paso a paso detalladas**
+- **Preparación y tiempo de cocción**
+
+Asegurese de que la receta es clara, los ingredientes están en medición imperial y que sea fácil de seguir. Gracias!`;
 
     setInput(prompt);
     handleSubmit(new Event("submit"));
@@ -49,10 +62,12 @@ export default function Chat() {
     setSelectedFoodType(null);
     setSelectedDietaryRestrictions([]);
     setSelectedReligiousRestrictions([]);
+    setInput("");
+    window.location.reload();
   };
 
   return (
-    <div className="flex flex-col items-center w-full max-w-md py-24 mx-auto">
+    <div className="flex flex-col items-center w-full max-w-2xl py-24 mx-auto">
       <header className="mb-6 text-center">
         <h1 className="text-3xl font-bold">Recetario Inteligente</h1>
       </header>
@@ -66,12 +81,12 @@ export default function Chat() {
         onSelectRestriction={setSelectedReligiousRestrictions}
       />
 
-      <div className="flex gap-4 mt-4">
-        <button onClick={onSubmit} className="btn">
+      <div className="flex w-full space-x-2 mt-5">
+        <button onClick={onSubmit} className="w-full btn">
           Sugerir Receta
         </button>
-        <button onClick={onReset} className="btn">
-          Reiniciar
+        <button onClick={onReset} className="w-full btn">
+          Iniciar Nuevamente
         </button>
       </div>
 
@@ -106,8 +121,10 @@ export default function Chat() {
           .filter((m) => m.role === "assistant")
           .map((m) => {
             return (
-              <div key={m.id} className="whitespace-pre-wrap">
-                <p className="text-lg font-medium mb-2">Respuesta del AI:</p>
+              <div key={m.id} className="whitespace-pre-wrap mb-6">
+                <p className="text-lg font-medium mb-2">
+                  Platillo recomendado:
+                </p>
                 <p className="p-4 bg-gray-100 rounded-md">{m.content}</p>
               </div>
             );
