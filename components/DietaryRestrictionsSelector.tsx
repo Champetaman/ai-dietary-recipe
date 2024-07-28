@@ -31,9 +31,12 @@ const DietaryRestrictionsSelector: React.FC<
 
   return (
     <div className="mb-4 w-full">
-      <h2 className="mb-2 text-xl text-center">
+      <h2 className="mb-1 text-xl text-center">
         ¿Tienes alguna restricción alimentaria?
       </h2>
+      <p className="mb-2 text-sm text-center text-gray-600">
+        *No es necesario seleccionar alguna restricción alimentaria
+      </p>
       <div className="flex flex-wrap gap-2 justify-center">
         {restrictions.map((restriction) => (
           <button
