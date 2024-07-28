@@ -3,7 +3,15 @@
 @tailwind utilities;
 
 body {
-  @apply bg-gray-100 text-gray-800;
+  @apply text-gray-800 absolute inset-0 -z-10 h-full w-full bg-white;
+  background-image: linear-gradient(to right, #8080800a 1px, transparent 1px), 
+                    linear-gradient(to bottom, #8080800a 1px, transparent 1px);
+  background-size: 14px 24px;
+}
+
+body::before {
+  content: "";
+  @apply absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-fuchsia-400 opacity-20 blur-[100px];
 }
 
 h2 {
@@ -16,4 +24,8 @@ h2 {
 
 .btn-selected {
   @apply text-white bg-blue-500;
+}
+
+.btn-unselected {
+  @apply text-blue-500 bg-white border border-blue-500;
 }
