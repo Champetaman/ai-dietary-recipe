@@ -21,12 +21,12 @@ const ReligiousRestrictionsSelector: React.FC<
     onSelectRestriction(newRestrictions);
   };
 
-  const restrictions = ["Halal", "Kosher", "Hindu", "Buddhist"];
+  const restrictions = ["Halal", "Kosher", "Hindu", "Buddhist", "Ninguna"];
 
   return (
     <div className="mb-4 w-full">
       <h2 className="mb-1 text-xl text-center">
-        ¿Tienes alguna preferencia?
+        ¿Tienes alguna dieta religiosa?
       </h2>
       <p className="mb-2 text-sm text-center text-gray-600">
         *No es necesario seleccionar alguna preferencia
