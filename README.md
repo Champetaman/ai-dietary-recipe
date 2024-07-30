@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Recetario Inteligente
+
+Recetario Inteligente is a web application that suggests recipes based on user-selected parameters such as time of day, food type, dietary restrictions, and religious diet. The app is built with React, Next.js, Tailwind CSS, and utilizes the Vercel AI SDK to connect to OpenAI's GPT model for generating recipe suggestions.
+
+## Features
+
+- **Time Selection**: Choose the time of day for which you need a recipe (e.g., breakfast, lunch, dinner).
+- **Food Type Selection**: Select the type of cuisine you prefer (e.g., Italian, Chinese, Mexican).
+- **Dietary Restrictions**: Optionally select any dietary restrictions (e.g., vegetarian, vegan, gluten-free).
+- **Religious Diets**: Optionally select any religious dietary restrictions.
+- **Recipe Suggestion**: Get a recipe suggestion based on your selections, including the recipe name, ingredients and instructions.
+- **Reset Functionality**: Clear all selections and restart the process.
+
+## Technologies Used
+
+- **React**: For building the user interface.
+- **Next.js**: For server-side rendering and API routes.
+- **Tailwind CSS**: For styling the application.
+- **Vercel AI SDK**: For connecting to OpenAI's GPT model.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Node.js and pnpm installed on your machine.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Installation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Clone the repository:
+    ```sh
+    git clone https://github.com/Champetaman/ai-dietary-recipe
+    cd ai-dietary-recipe
+    ```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+2. Install dependencies:
+    ```sh
+    pnpm install
+    ```
 
-## Learn More
+3. Set up your environment variables:
 
-To learn more about Next.js, take a look at the following resources:
+   - Create a `.env.local` file in the root directory of your project.
+   - Add your OpenAI API key and any other necessary environment variables:
+     ```env
+     OPENAI_API_KEY=your_openai_api_key
+     ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Running the Application
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+1. Start the development server:
+    ```sh
+    pnpm run dev
+    ```
 
-## Deploy on Vercel
+2. Open [http://localhost:3000](http://localhost:3000) in your browser to view the application.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Usage
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+1. **Select Time**: Choose the time of day for your recipe.
+2. **Select Food Type**: Select your preferred cuisine type.
+3. **Select Dietary Restrictions**: Optionally select any dietary restrictions you have.
+4. **Select Religious Diet**: Optionally select any religious dietary restrictions.
+5. **Get Recipe**: Click on "Sugerir Receta" to get a recipe suggestion.
+6. **Reset**: Click on "Reset" to clear all selections and restart the process.
+
+## Project Structure
+
+- `components/`: Contains the reusable UI components like TimeSelector, FoodTypeSelector, DietaryRestrictionsSelector, and ReligiousRestrictionsSelector.
+- `pages/`: Contains the main page of the application.
+- `api/`: Contains the API route for interacting with OpenAI's API.
+
+## Contributing
+
+Contributions are welcome! Please fork the repository and create a pull request with your changes.
+
+## License
+
+This project is licensed under the MIT License.
+
+## Acknowledgements
+
+- [OpenAI](https://openai.com/) for providing the GPT-3.5-turbo model.
+- [Vercel](https://vercel.com/) for providing the deployment platform and AI SDK.
+- [Next.js](https://nextjs.org/) for the React framework.
+- [Tailwind CSS](https://tailwindcss.com/) for the utility-first CSS framework.
+
+## Contact
+
+For any inquiries, please reach out to [Camilo Oviedo](https://www.camilooviedo.com).
+
+---
+
+© 2024 Camilo Oviedo. Almost all Rights Reserved.
