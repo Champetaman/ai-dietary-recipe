@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Recetario Inteligente",
   description:
-    "AI Application that suggests you different food recipes based on your selection",
+    "Recetario Inteligente es una aplicación web que sugiere recetas en función de parámetros seleccionados por el usuario, como la hora del día, el tipo de comida, las restricciones dietéticas y la dieta religiosa.",
 };
 
 export default function RootLayout({
