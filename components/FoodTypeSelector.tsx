@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
+
+import foodTypes from "../data/FoodOptions.json";
 
 interface FoodTypeSelectorProps {
   onSelectFoodType: (foodType: string) => void;
@@ -8,29 +10,22 @@ const FoodTypeSelector: React.FC<FoodTypeSelectorProps> = ({
   onSelectFoodType,
 }) => {
   const [selectedFoodType, setSelectedFoodType] = useState<string | null>(null);
-  const foodTypes = [
-    "India",
-    "Mexicana",
-    "Libanesa",
-    "Japonesa",
-    "China",
-    "Española",
-    "Francesa",
-    "Italiana",
-  ];
 
-  const handleClick = (foodType: string) => {
-    setSelectedFoodType(foodType);
-    onSelectFoodType(foodType);
-  };
+  const handleClick = useCallback(
+    (foodType: string) => {
+      setSelectedFoodType(foodType);
+      onSelectFoodType(foodType);
+    },
+    [onSelectFoodType]
+  );
 
   return (
     <div className="mb-6 w-full">
       <h2 className="text-lg font-semibold mb-2 text-center">
-        ¿Qué tipo de comida te gustaría comer?
+        {foodTypes.header}
       </h2>
       <div className="flex flex-wrap gap-2 justify-center">
-        {foodTypes.map((foodType) => (
+        {foodTypes.options.map((foodType) => (
           <button
             key={foodType}
             className={`px-4 py-2 rounded-md btn ${
@@ -46,4 +41,8 @@ const FoodTypeSelector: React.FC<FoodTypeSelectorProps> = ({
   );
 };
 
-export default FoodTypeSelector;
+const MemoizedTimeSelector = React.memo(FoodTypeSelector);
+
+MemoizedTimeSelector.displayName = "FoodTypeSelector"; // Setting the display name explicitly
+
+export default MemoizedTimeSelector;

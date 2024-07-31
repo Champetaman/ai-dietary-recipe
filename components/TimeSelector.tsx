@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 
+import times from "../data/TimeOptions.json";
 interface TimeSelectorProps {
   onSelectTime: (time: string) => void;
 }
@@ -7,20 +8,19 @@ interface TimeSelectorProps {
 const TimeSelector: React.FC<TimeSelectorProps> = ({ onSelectTime }) => {
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
-  const handleSelectTime = (time: string) => {
-    setSelectedTime(time);
-    onSelectTime(time);
-  };
-
-  const times = ["15 min", "30 min", "45 min", "1 hora", "2 horas", "+2 horas"];
+  const handleSelectTime = useCallback(
+    (time: string) => {
+      setSelectedTime(time);
+      onSelectTime(time);
+    },
+    [onSelectTime]
+  );
 
   return (
     <div className="mb-4 w-full">
-      <h2 className="mb-2 text-xl text-center">
-        ¿Cuánto tiempo tienes para preparar tus alimentos?
-      </h2>
+      <h2 className="mb-2 text-xl text-center">{times.header}</h2>
       <div className="flex flex-wrap gap-2 justify-center">
-        {times.map((time) => (
+        {times.options.map((time) => (
           <button
             key={time}
             onClick={() => handleSelectTime(time)}
@@ -36,4 +36,8 @@ const TimeSelector: React.FC<TimeSelectorProps> = ({ onSelectTime }) => {
   );
 };
 
-export default TimeSelector;
+const MemoizedTimeSelector = React.memo(TimeSelector);
+
+MemoizedTimeSelector.displayName = "TimeSelector"; // Setting the display name explicitly
+
+export default MemoizedTimeSelector;
