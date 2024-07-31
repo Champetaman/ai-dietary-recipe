@@ -1,0 +1,12 @@
+{
+  "header": "¿Tienes alguna restricción con tu alimentación?",
+  "options": [
+    "Vegetariano",
+    "Vegano",
+    "Sin gluten",
+    "Sin lactosa",
+    "Keto",
+    "Paleo",
+    "Ninguna"
+  ]
+}

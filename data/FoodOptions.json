@@ -1,0 +1,14 @@
+{
+  "header": "¿Qué tipo de comida te gustaría comer?",
+  "options": [
+    "India",
+    "Mexicana",
+    "Libanesa",
+    "Japonesa",
+    "China",
+    "Española",
+    "Francesa",
+    "Italiana",
+    "Colombiana"
+  ]
+}
