@@ -17,7 +17,7 @@ export default function Chat() {
   const [selectedFoodType, setSelectedFoodType] = useState<string | null>(null);
   const [selectedDietaryRestrictions, setSelectedDietaryRestrictions] =
     useState<string[]>([]);
-  const [selectedReligiousDiets, setselectedReligiousDiets] = useState<
+  const [selectedReligiousDiets, setSelectedReligiousDiets] = useState<
     string[]
   >([]);
 
@@ -40,6 +40,7 @@ export default function Chat() {
       );
       return false;
     }
+
     return true;
   }, [
     selectedTime,
@@ -49,8 +50,13 @@ export default function Chat() {
   ]);
 
   const onSubmit = useCallback(() => {
-    if (!validateSelections()) return;
+    // Validate selections first
+    const isValid = validateSelections();
+    if (!isValid) {
+      return; // Exit if validation fails
+    }
 
+    // Create prompt only if validation succeeds
     const prompt = `Sugiera una receta con los siguientes criterios:
       1. **Tiempo:** ${selectedTime},
       2. **Tipo de comida:** ${selectedFoodType},
@@ -73,11 +79,11 @@ export default function Chat() {
       - **Lista de ingredientes**
       - **Instrucciones paso a paso detalladas**
       - **Preparación y tiempo de cocción**
-
+      
       Asegurese de que la receta es clara, los ingredientes están en medición imperial y que sea fácil de seguir. Gracias!`;
 
     setInput(prompt);
-    handleSubmit(new Event("submit"));
+    handleSubmit(); // Trigger API call here
   }, [
     setInput,
     handleSubmit,
@@ -92,7 +98,7 @@ export default function Chat() {
     setSelectedTime(null);
     setSelectedFoodType(null);
     setSelectedDietaryRestrictions([]);
-    setselectedReligiousDiets([]);
+    setSelectedReligiousDiets([]);
     setInput("");
     window.location.reload();
   }, [setInput]);
@@ -107,13 +113,14 @@ export default function Chat() {
       <DietaryRestrictionsSelector
         onSelectRestriction={setSelectedDietaryRestrictions}
       />
-      <ReligiousDietsSelector onSelectRestriction={setselectedReligiousDiets} />
+      <ReligiousDietsSelector onSelectRestriction={setSelectedReligiousDiets} />
 
       <div className="flex w-full space-x-2 mt-5">
-        <button onClick={onSubmit} className="w-full btn">
+        <button type="button" onClick={onSubmit} className="w-full btn">
           Sugerir Receta
         </button>
-        <button onClick={onReset} className="w-full btn">
+
+        <button type="button" onClick={onReset} className="w-full btn">
           Iniciar Nuevamente
         </button>
       </div>
