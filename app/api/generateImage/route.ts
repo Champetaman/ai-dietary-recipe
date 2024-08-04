@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     const response = await openai.images.generate({
       prompt: description,
       n: 1, // Number of images to generate
-      size: "256x256", // Set the image size
+      size: "1024x1024", // Set the image size
     });
 
     const imageUrl = response.data[0]?.url; // Extract the image URL from the response
