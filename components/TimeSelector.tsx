@@ -1,19 +1,27 @@
 import React, { useState, useCallback } from "react";
 
 import times from "../data/TimeOptions.json";
+
 interface TimeSelectorProps {
-  onSelectTime: (time: string) => void;
+  onSelectTime: (time: string | null) => void; // Allow null to indicate no selection
 }
 
 const TimeSelector: React.FC<TimeSelectorProps> = ({ onSelectTime }) => {
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
+  // Handle time selection and toggle
   const handleSelectTime = useCallback(
     (time: string) => {
-      setSelectedTime(time);
-      onSelectTime(time);
+      if (selectedTime === time) {
+        // Unselect the option if it's already selected
+        setSelectedTime(null);
+        onSelectTime(null);
+      } else {
+        setSelectedTime(time);
+        onSelectTime(time);
+      }
     },
-    [onSelectTime]
+    [selectedTime, onSelectTime]
   );
 
   return (
