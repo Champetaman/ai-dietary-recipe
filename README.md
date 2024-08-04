@@ -1,22 +1,25 @@
 # Recetario Inteligente
 
-Recetario Inteligente is a web application that suggests recipes based on user-selected parameters such as time of day, food type, dietary restrictions, and religious diet. The app is built with React, Next.js, Tailwind CSS, and utilizes the Vercel AI SDK to connect to OpenAI's GPT model for generating recipe suggestions.
+Recetario Inteligente is an advanced web application that provides personalized recipe suggestions based on user-selected criteria such as ammount of time, cuisine type, dietary restrictions, and religious dietary preferences. Built with modern web technologies, this app leverages AI to enhance the user experience by generating detailed recipe suggestions and accompanying dish images.
 
 ## Features
 
-- **Time Selection**: Choose the time of day for which you need a recipe (e.g., breakfast, lunch, dinner).
-- **Food Type Selection**: Select the type of cuisine you prefer (e.g., Italian, Chinese, Mexican).
-- **Dietary Restrictions**: Optionally select any dietary restrictions (e.g., vegetarian, vegan, gluten-free).
-- **Religious Diets**: Optionally select any religious dietary restrictions.
-- **Recipe Suggestion**: Get a recipe suggestion based on your selections, including the recipe name, ingredients and instructions.
-- **Reset Functionality**: Clear all selections and restart the process.
+- **Time Selection**: Choose the ammount of time you have to prepare your meal (e.g., 15 min, 30 min, 45 min).
+- **Food Type Selection**: Select your preferred cuisine type (e.g., Italian, Chinese, Mexican) or add a custom type.
+- **Dietary Restrictions**: Optionally select dietary restrictions (e.g., vegetarian, vegan, gluten-free) or add your own.
+- **Religious Diets**: Optionally select any religious dietary restrictions or specify custom restrictions.
+- **Recipe Suggestion**: Receive a recipe suggestion based on your selections, including the recipe name, ingredients, and step-by-step instructions.
+- **Dish Image Generation**: Generate a realistic image of the suggested dish using DALL·E 3.
+- **Reset Functionality**: Clear all selections and restart the process seamlessly.
 
 ## Technologies Used
 
 - **React**: For building the user interface.
 - **Next.js**: For server-side rendering and API routes.
-- **Tailwind CSS**: For styling the application.
+- **Tailwind CSS**: For styling the application with a utility-first approach.
 - **Vercel AI SDK**: For connecting to OpenAI's GPT model.
+- **DALL·E 3**: For generating images of the suggested recipes.
+- **pnpm**: For managing project dependencies.
 
 ## Getting Started
 
@@ -32,7 +35,7 @@ Recetario Inteligente is a web application that suggests recipes based on user-s
     cd ai-dietary-recipe
     ```
 
-2. Install dependencies:
+2. Install dependencies using `pnpm`:
     ```sh
     pnpm install
     ```
@@ -47,7 +50,7 @@ Recetario Inteligente is a web application that suggests recipes based on user-s
 
 ### Running the Application
 
-1. Start the development server:
+1. Start the development server with `pnpm`:
     ```sh
     pnpm run dev
     ```
@@ -56,22 +59,25 @@ Recetario Inteligente is a web application that suggests recipes based on user-s
 
 ## Usage
 
-1. **Select Time**: Choose the time of day for your recipe.
-2. **Select Food Type**: Select your preferred cuisine type.
-3. **Select Dietary Restrictions**: Optionally select any dietary restrictions you have.
-4. **Select Religious Diet**: Optionally select any religious dietary restrictions.
-5. **Get Recipe**: Click on "Sugerir Receta" to get a recipe suggestion.
-6. **Reset**: Click on "Reset" to clear all selections and restart the process.
+1. **Select Time**: Choose the ammount of time you have to prepare your meal.
+2. **Select Food Type**: Select your preferred cuisine type or enter a custom type.
+3. **Select Dietary Restrictions**: Optionally select any dietary restrictions or add a custom restriction.
+4. **Select Religious Diet**: Optionally select any religious dietary restrictions or specify custom restrictions.
+5. **Get Recipe**: Click on "Sugerir Receta" to receive a recipe suggestion.
+6. **Generate Image**: Click on "Generar Imagen" to create an AI-generated image of the suggested recipe.
+7. **Reset**: Click on "Iniciar Nuevamente" to clear all selections and restart the process.
 
 ## Project Structure
 
-- `components/`: Contains the reusable UI components like TimeSelector, FoodTypeSelector, DietaryRestrictionsSelector, and ReligiousRestrictionsSelector.
-- `pages/`: Contains the main page of the application.
-- `api/`: Contains the API route for interacting with OpenAI's API.
+- **`components/`**: Contains reusable UI components such as `TimeSelector`, `FoodTypeSelector`, `DietaryRestrictionsSelector`, and `ReligiousDietsSelector`.
+- **`app/`**: Contains the main application logic, layout, and API routes.
+  - **`page.tsx`**: The main page of the application.
+  - **`api/`**: Contains the API route for interacting with OpenAI's API for recipes and image generation.
+- **`public/`**: Contains static files such as `favicon.ico`.
 
 ## Contributing
 
-Contributions are welcome! Please fork the repository and create a pull request with your changes.
+Contributions are welcome! Please fork the repository and create a pull request with your changes. Ensure your code adheres to existing styles and passes linting checks.
 
 ## License
 
@@ -79,7 +85,7 @@ This project is licensed under the MIT License.
 
 ## Acknowledgements
 
-- [OpenAI](https://openai.com/) for providing the GPT-3.5-turbo model.
+- [OpenAI](https://openai.com/) for providing the GPT model and DALL·E 3 for image generation.
 - [Vercel](https://vercel.com/) for providing the deployment platform and AI SDK.
 - [Next.js](https://nextjs.org/) for the React framework.
 - [Tailwind CSS](https://tailwindcss.com/) for the utility-first CSS framework.
