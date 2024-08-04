@@ -1,99 +1,121 @@
 import React, { useState, useCallback } from "react";
 
+// Importing religious diet options from a JSON file
 import ReligiousDiets from "../data/ReligiousDiets.json";
 
+// Define the props interface for the ReligiousDietsSelector component
 interface ReligiousDietsSelectorProps {
-  onSelectRestriction: (restrictions: string[] | []) => void; // Allow [] to indicate no selection
+  onSelectRestriction: (restrictions: string[] | []) => void; // Callback to handle restriction selection, allows an empty array to indicate no selection
 }
 
+// ReligiousDietsSelector component definition
 const ReligiousDietsSelector: React.FC<ReligiousDietsSelectorProps> = ({
   onSelectRestriction,
 }) => {
+  // State to track the currently selected religious diet restrictions
   const [selectedRestrictions, setSelectedRestrictions] = useState<string[]>(
     []
   );
+  // State to track the custom restriction input by the user
   const [customRestriction, setCustomRestriction] = useState<string>("");
+  // State to track if a custom restriction has been submitted
   const [isCustomRestrictionSubmitted, setCustomRestrictionSubmitted] =
     useState<boolean>(false);
 
-  // Handle the selection and deselection of restrictions
+  /**
+   * handleSelectRestriction - Handles the selection and deselection of restrictions
+   * @param restriction - The restriction selected or deselected by the user
+   */
   const handleSelectRestriction = useCallback(
     (restriction: string) => {
       const isSelected = selectedRestrictions.includes(restriction);
       const newRestrictions = isSelected
-        ? selectedRestrictions.filter((r) => r !== restriction)
-        : [...selectedRestrictions, restriction];
+        ? selectedRestrictions.filter((r) => r !== restriction) // Remove restriction if already selected
+        : [...selectedRestrictions, restriction]; // Add restriction if not selected
 
       setSelectedRestrictions(newRestrictions);
-      onSelectRestriction(newRestrictions);
+      onSelectRestriction(newRestrictions); // Update parent component with the new restrictions array
     },
-    [onSelectRestriction, selectedRestrictions]
+    [onSelectRestriction, selectedRestrictions] // Dependencies: onSelectRestriction, selectedRestrictions
   );
 
-  // Handle custom restriction input change
+  /**
+   * handleInputChange - Handles changes to the custom restriction input
+   * @param event - The input change event
+   */
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     // Use regular expression to allow only alphabetic characters and spaces
     const filteredValue = value.replace(/[^a-zA-Z\s]/g, ""); // Allow letters and spaces only
-    setCustomRestriction(filteredValue);
+    setCustomRestriction(filteredValue); // Update the custom restriction state
   };
 
-  // Handle custom restriction submission
+  /**
+   * handleCustomRestrictionSubmit - Handles the submission of a custom restriction
+   */
   const handleCustomRestrictionSubmit = () => {
     if (customRestriction.trim() !== "") {
-      const updatedRestrictions = [...selectedRestrictions, customRestriction];
+      // Check if the custom restriction is not empty
+      const updatedRestrictions = [...selectedRestrictions, customRestriction]; // Add custom restriction to the existing ones
       setSelectedRestrictions(updatedRestrictions);
-      onSelectRestriction(updatedRestrictions);
+      onSelectRestriction(updatedRestrictions); // Update parent component with the updated restrictions
       setCustomRestrictionSubmitted(true); // Mark the custom restriction as submitted
     } else {
-      alert("Por favor, introduzca una dieta religiosa válida.");
+      alert("Por favor, introduzca una dieta religiosa válida."); // Alert if the input is empty or invalid
     }
   };
 
-  // Allow the user to edit their custom restriction
+  /**
+   * handleEditCustomRestriction - Allows the user to edit their custom restriction
+   */
   const handleEditCustomRestriction = () => {
     setCustomRestrictionSubmitted(false); // Allow editing by resetting the submission state
   };
 
   return (
     <div className="mb-4 w-full">
+      {/* Header for the religious diets selection section */}
       <h2 className="mb-1 text-xl text-center">{ReligiousDiets.header}</h2>
       <div className="flex flex-wrap gap-2 justify-center">
+        {/* Render a button for each predefined restriction option */}
         {ReligiousDiets.options.map((restriction) => (
           <button
-            key={restriction}
-            onClick={() => handleSelectRestriction(restriction)}
+            key={restriction} // Unique key for each button to prevent React warnings
+            onClick={() => handleSelectRestriction(restriction)} // Handle button click
             className={`px-4 py-2 rounded-md btn ${
               selectedRestrictions.includes(restriction)
                 ? "btn-selected"
                 : "btn-unselected"
-            }`}
+            }`} // Style button based on selection
           >
-            {restriction}
+            {restriction} {/* Display the restriction option */}
           </button>
         ))}
       </div>
       <div className="mt-4 flex justify-center">
+        {/* Input field for custom religious diet restriction */}
         <input
           type="text"
           value={customRestriction}
-          onChange={handleInputChange}
-          placeholder="Otro"
+          onChange={handleInputChange} // Handle input change
+          placeholder="Otra"
           className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           disabled={isCustomRestrictionSubmitted} // Disable input if a custom restriction has been submitted
         />
+        {/* Button to submit custom religious diet restriction */}
         <button
           type="button"
-          onClick={handleCustomRestrictionSubmit}
+          onClick={handleCustomRestrictionSubmit} // Handle custom restriction submission
           className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
           disabled={isCustomRestrictionSubmitted} // Disable add button if a custom restriction has been submitted
         >
           Añadir
         </button>
+        {/* Button to allow editing of custom restriction if submitted */}
         {isCustomRestrictionSubmitted && (
           <button
             type="button"
-            onClick={handleEditCustomRestriction}
+            onClick={handleEditCustomRestriction} // Handle edit button click
             className="ml-2 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
           >
             Editar
@@ -104,8 +126,11 @@ const ReligiousDietsSelector: React.FC<ReligiousDietsSelectorProps> = ({
   );
 };
 
+// Memoizing the component to prevent unnecessary re-renders
 const MemoizedReligiousDietsSelector = React.memo(ReligiousDietsSelector);
 
-MemoizedReligiousDietsSelector.displayName = "ReligiousDietsSelector"; // Setting the display name explicitly
+// Explicitly set the display name for the memoized component
+MemoizedReligiousDietsSelector.displayName = "ReligiousDietsSelector";
 
+// Export the memoized component as default
 export default MemoizedReligiousDietsSelector;

@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { useChat } from "ai/react"; // Ensure this is the correct import for your SDK
-import TimeSelector from "../components/TimeSelector";
-import FoodTypeSelector from "../components/FoodTypeSelector";
-import DietaryRestrictionsSelector from "../components/DietaryRestrictionsSelector";
-import ReligiousDietsSelector from "../components/ReligiousDietsSelector";
-import Image from "next/image"; // Import the Next.js Image component
+import { useChat } from "ai/react"; // Import for AI chat functionality
+import TimeSelector from "../components/TimeSelector"; // Component for selecting cooking time
+import FoodTypeSelector from "../components/FoodTypeSelector"; // Component for selecting food type
+import DietaryRestrictionsSelector from "../components/DietaryRestrictionsSelector"; // Component for selecting dietary restrictions
+import ReligiousDietsSelector from "../components/ReligiousDietsSelector"; // Component for selecting religious dietary restrictions
+import Image from "next/image"; // Next.js component for optimized image rendering
 
-// Define the type for messages
+// Define the type for messages exchanged with the AI
 interface Message {
   id: string;
   role: "user" | "assistant";
@@ -16,71 +16,59 @@ interface Message {
 }
 
 export default function Chat() {
-  const { error, messages, isLoading, setInput, handleSubmit, reload, stop } =
-    useChat({
-      keepLastMessageOnError: true,
-    });
+  // Hook to manage chat interactions with AI
+  const { error, messages, isLoading, setInput, handleSubmit, reload, stop } = useChat({
+    keepLastMessageOnError: true, // Option to retain the last message if an error occurs
+  });
 
+  // State variables to hold user selections
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [selectedFoodType, setSelectedFoodType] = useState<string | null>(null);
-  const [selectedDietaryRestrictions, setSelectedDietaryRestrictions] =
-    useState<string[]>([]);
-  const [selectedReligiousDiets, setSelectedReligiousDiets] = useState<
-    string[]
-  >([]);
-  const [recipeImage, setRecipeImage] = useState<string | null>(null);
+  const [selectedDietaryRestrictions, setSelectedDietaryRestrictions] = useState<string[]>([]);
+  const [selectedReligiousDiets, setSelectedReligiousDiets] = useState<string[]>([]);
+  const [recipeImage, setRecipeImage] = useState<string | null>(null); // State to hold generated recipe image URL
+  const [isImageLoading, setIsImageLoading] = useState<boolean>(false); // State to manage image loading indicator
 
+  // Function to validate user selections
   const validateSelections = useCallback(() => {
+    // Ensure a cooking time and food type are selected
     if (!selectedTime || !selectedFoodType) {
-      alert(
-        "Por favor selecciona al menos un tiempo estimado y la comida que te gustaría comer."
-      );
+      alert("Por favor selecciona al menos un tiempo estimado y la comida que te gustaría comer.");
       return false;
     }
 
+    // Ensure mutually exclusive options are not selected
     if (
-      (selectedDietaryRestrictions.includes("Ninguna") &&
-        selectedDietaryRestrictions.length > 1) ||
-      (selectedReligiousDiets.includes("Ninguna") &&
-        selectedReligiousDiets.length > 1)
+      (selectedDietaryRestrictions.includes("Ninguna") && selectedDietaryRestrictions.length > 1) ||
+      (selectedReligiousDiets.includes("Ninguna") && selectedReligiousDiets.length > 1)
     ) {
-      alert(
-        'No puedes seleccionar la opción: "Ninguna" con otras restricciones dietéticas o dietas religiosas.'
-      );
+      alert('No puedes seleccionar la opción: "Ninguna" con otras restricciones dietéticas o dietas religiosas.');
       return false;
     }
 
     return true;
-  }, [
-    selectedTime,
-    selectedFoodType,
-    selectedDietaryRestrictions,
-    selectedReligiousDiets,
-  ]);
+  }, [selectedTime, selectedFoodType, selectedDietaryRestrictions, selectedReligiousDiets]);
 
+  // Function to handle recipe suggestion submission
   const onSubmit = useCallback(async () => {
-    // Validate selections first
+    // Validate selections before proceeding
     const isValid = validateSelections();
     if (!isValid) {
       return; // Exit if validation fails
     }
 
-    // Create prompt only if validation succeeds
+    // Create a prompt for the AI based on user selections
     const prompt = `Sugiera una receta con los siguientes criterios:
       1. **Tiempo:** ${selectedTime},
       2. **Tipo de comida:** ${selectedFoodType},
       ${
         selectedDietaryRestrictions.length > 0
-          ? `3. **Restricción alimentaria:** ${selectedDietaryRestrictions.join(
-              ", "
-            )},`
+          ? `3. **Restricción alimentaria:** ${selectedDietaryRestrictions.join(", ")},`
           : ""
       }
       ${
         selectedReligiousDiets.length > 0
-          ? `4. **Restricción religiosa:** ${selectedReligiousDiets.join(
-              ", "
-            )},`
+          ? `4. **Restricción religiosa:** ${selectedReligiousDiets.join(", ")},`
           : ""
       }
       Por favor, proporcione una receta única que no haya generado anteriormente, que se ajuste a los criterios mencionados anteriormente. Incluya lo siguiente en su respuesta:
@@ -89,10 +77,11 @@ export default function Chat() {
       - **Instrucciones paso a paso detalladas**
       - **Preparación y tiempo de cocción**
       
-      Asegurese de que los titulos son exactos a los anteriormente proporcionados. Asegurese de que la receta es clara. Asegurese de que los ingredientes están en medición imperial y que sea fácil de seguir. Gracias!`;
+      Asegurese de que la receta es clara, los ingredientes están en medición imperial y que sea fácil de seguir. Gracias!`;
 
+    // Set the input for the AI and submit the request
     setInput(prompt);
-    await handleSubmit(); // Trigger API call here
+    await handleSubmit(); // Trigger API call
   }, [
     setInput,
     handleSubmit,
@@ -103,40 +92,49 @@ export default function Chat() {
     selectedReligiousDiets,
   ]);
 
+  // Function to extract recipe details from AI response
   const extractRecipeDetails = (content: string) => {
-    // Use regular expressions to extract the recipe name and ingredients from the content
+    // Use regex to extract the recipe name and ingredients from the content
     const nameMatch = content.match(/(Nombre de la receta|Receta):\s*(.*)/i);
     const ingredientsMatch = content.match(
       /(Lista de ingredientes|Ingredientes):\s*([\s\S]*?)\n\n/i
     );
 
-    const recipeName = nameMatch ? nameMatch[1].trim() : "Receta desconocida";
-    const ingredients = ingredientsMatch ? ingredientsMatch[1].trim() : "";
+    const recipeName = nameMatch ? nameMatch[2].trim() : "Receta desconocida";
+    const ingredients = ingredientsMatch ? ingredientsMatch[2].trim() : "";
 
     return { recipeName, ingredients };
   };
 
+  // Function to generate an image of the dish
   const onGenerateImage = useCallback(async () => {
-    // Find the most recent recipe content generated by the AI
+    // Retrieve the latest recipe generated by the AI
     const recipeMessage = messages.find((m) => m.role === "assistant");
 
+    // Ensure there is a recipe to generate an image for
     if (!recipeMessage) {
       alert("Primero sugiere una receta antes de generar la imagen.");
       return;
     }
 
-    const { recipeName, ingredients } = extractRecipeDetails(
-      recipeMessage.content
-    );
+    // Extract relevant details from the recipe
+    const { recipeName, ingredients } = extractRecipeDetails(recipeMessage.content);
+
+    // Start image loading process
+    setIsImageLoading(true);
 
     try {
+      // Make a request to the server to generate an image
       const imageResponse = await fetch("/api/generateImage", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          description: `Create an image of a dish named "${recipeName}" using the following ingredients: ${ingredients}.`,
+          description: `Create a high-quality image of a dish named: "${recipeName}". 
+          The dish should feature the following ingredients:"${ingredients}". 
+          The colors should be warm and inviting. 
+          The lighting should be natural daylight coming from a nearby window, casting soft shadows.`,
         }),
       });
 
@@ -144,6 +142,7 @@ export default function Chat() {
         throw new Error(`HTTP error! status: ${imageResponse.status}`);
       }
 
+      // Parse the response to get the image URL
       const imageData = await imageResponse.json();
       if (imageData.imageUrl) {
         setRecipeImage(imageData.imageUrl); // Set the image URL in state
@@ -152,17 +151,22 @@ export default function Chat() {
       }
     } catch (error) {
       console.error("Error fetching image:", error);
+    } finally {
+      // Stop the loading process
+      setIsImageLoading(false);
     }
   }, [messages]);
 
+  // Function to reset the application state
   const onReset = useCallback(() => {
+    // Reset all selections and input fields
     setSelectedTime(null);
     setSelectedFoodType(null);
     setSelectedDietaryRestrictions([]);
     setSelectedReligiousDiets([]);
     setRecipeImage(null);
     setInput("");
-    window.location.reload();
+    window.location.reload(); // Reload the page
   }, [setInput]);
 
   return (
@@ -193,13 +197,13 @@ export default function Chat() {
 
       {isLoading && (
         <div className="mt-4 text-gray-500">
-          <div>Loading...</div>
+          <div>Cargando...</div>
           <button
             type="button"
             className="px-4 py-2 mt-4 text-blue-500 border border-blue-500 rounded-md"
             onClick={stop}
           >
-            Stop
+            Detener
           </button>
         </div>
       )}
@@ -212,9 +216,14 @@ export default function Chat() {
             className="px-4 py-2 mt-4 text-blue-500 border border-blue-500 rounded-md"
             onClick={() => reload()}
           >
-            Retry
+            Reintentar
           </button>
         </div>
+      )}
+
+      {/* Render the loading indicator when image generation is in progress */}
+      {isImageLoading && (
+        <div className="mt-4 text-gray-500">Generando imagen...</div>
       )}
 
       <div className="mt-4 p-4 bg-white rounded shadow w-full">
@@ -226,18 +235,19 @@ export default function Chat() {
               <p className="p-4 bg-gray-100 rounded-md">{m.content}</p>
             </div>
           ))}
-        {recipeImage && (
-          <div className="mt-4">
-            <p className="text-lg font-medium mb-2">Imagen del platillo:</p>
-            <Image
-              src={recipeImage}
-              alt="Generated dish"
-              width={256}
-              height={256}
-              className="w-full rounded-md"
-            />
-          </div>
-        )}
+        {recipeImage &&
+          !isImageLoading && ( // Only show the image when not loading
+            <div className="mt-4">
+              <p className="text-lg font-medium mb-2">Imagen del platillo:</p>
+              <Image
+                src={recipeImage}
+                alt="Generated dish"
+                width={512}
+                height={512}
+                className="w-full rounded-md"
+              />
+            </div>
+          )}
       </div>
 
       <footer className="mt-12 text-center text-gray-500">
