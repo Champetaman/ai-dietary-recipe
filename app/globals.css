@@ -2,30 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
+/* General body styles */
 body {
-  @apply text-gray-800 absolute inset-0 -z-10 h-full w-full bg-white;
-  background-image: linear-gradient(to right, #8080800a 1px, transparent 1px), 
-                    linear-gradient(to bottom, #8080800a 1px, transparent 1px);
+  @apply text-gray-800 bg-white relative;
+  background-image: linear-gradient(to right, #8080800a 1px, transparent 1px),
+    linear-gradient(to bottom, #8080800a 1px, transparent 1px);
   background-size: 14px 24px;
 }
 
+/* Decorative element before the body */
 body::before {
   content: "";
-  @apply absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-fuchsia-400 opacity-20 blur-[100px];
+  @apply absolute left-1/2 transform -translate-x-1/2 top-0 -z-10 h-[310px] w-[310px] rounded-full bg-fuchsia-400 opacity-20 blur-[100px];
 }
 
+/* Heading styles */
 h2 {
   @apply text-xl font-semibold mb-4;
 }
 
+/* Button styles */
 .btn {
   @apply px-4 py-2 m-1 text-blue-500 bg-white border border-blue-500 rounded-md hover:bg-blue-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500;
 }
 
+/* Selected button styles */
 .btn-selected {
   @apply text-white bg-blue-500;
 }
 
+/* Unselected button styles */
 .btn-unselected {
   @apply text-blue-500 bg-white border border-blue-500;
 }
