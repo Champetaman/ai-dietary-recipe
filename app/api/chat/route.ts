@@ -10,7 +10,7 @@ export async function POST(req: Request) {
 
   // Call the language model
   const result = await streamText({
-    model: openai('gpt-3.5-turbo'),
+    model: openai('gpt-4o-mini'),
     messages: convertToCoreMessages(messages),
     async onFinish({ text, toolCalls, toolResults, usage, finishReason }) {
       // implement your own logic here, e.g. for storing messages
