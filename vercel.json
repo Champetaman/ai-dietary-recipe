@@ -1,8 +1,10 @@
 {
-    "functions": {
-      "api/*": {
-        "maxDuration": 50
-      }
+  "functions": {
+    "app/api/generateImage": {
+      "maxDuration": 30
+    },
+    "app/api/chat/route": {
+      "maxDuration": 30
     }
   }
-  
+}
