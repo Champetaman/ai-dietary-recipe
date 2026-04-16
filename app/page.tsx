@@ -1,262 +1,513 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
-import { useChat } from "ai/react"; // Import for AI chat functionality
-import TimeSelector from "../components/TimeSelector"; // Component for selecting cooking time
-import FoodTypeSelector from "../components/FoodTypeSelector"; // Component for selecting food type
-import DietaryRestrictionsSelector from "../components/DietaryRestrictionsSelector"; // Component for selecting dietary restrictions
-import ReligiousDietsSelector from "../components/ReligiousDietsSelector"; // Component for selecting religious dietary restrictions
-import Image from "next/image"; // Next.js component for optimized image rendering
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
-// Define the type for messages exchanged with the AI
-interface Message {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
+import DietaryRestrictionsSelector from "@/components/DietaryRestrictionsSelector";
+import FoodTypeSelector from "@/components/FoodTypeSelector";
+import { useLanguage } from "@/components/LanguageProvider";
+import ReligiousDietsSelector from "@/components/ReligiousDietsSelector";
+import { SiteFooter } from "@/components/SiteFooter";
+import { SiteHeader } from "@/components/SiteHeader";
+import TimeSelector from "@/components/TimeSelector";
+import { Button } from "@/components/ui/button";
+import dietaryOptions from "@/data/DietaryRestrictions.json";
+import foodOptions from "@/data/FoodOptions.json";
+import religiousOptions from "@/data/ReligiousDiets.json";
+import timeOptions from "@/data/TimeOptions.json";
+import { FREE_MODELS } from "@/lib/openrouter";
+import {
+  NONE_OPTION_ID,
+  resolveLocalizedSelectionLabel,
+  type Language,
+} from "@/lib/i18n";
+
+type RecipeResult = {
+  title: string;
+  overview: string;
+  ingredients: string[];
+  steps: string[];
+};
+
+const copy = {
+  es: {
+    model: "Modelo",
+    controls: "Opciones",
+    output: "Resultado",
+    recipeButton: "Sugerir receta",
+    recipeBusy: "Generando receta...",
+    imageButton: "Generar imagen",
+    imageBusy: "Generando imagen...",
+    resetButton: "Reiniciar",
+    placeholderRecipe: "La receta aparecera aqui.",
+    ingredients: "Ingredientes",
+    steps: "Pasos",
+    overview: "Resumen",
+    statusIdle: "Listo para generar.",
+    errorTitle: "Algo salio mal",
+    closeError: "Cerrar",
+    recipeErrorFallback:
+      "No fue posible generar la receta. Intenta de nuevo en unos segundos.",
+    imageErrorFallback:
+      "No fue posible generar la imagen. Intenta de nuevo en unos segundos.",
+  },
+  en: {
+    model: "Model",
+    controls: "Options",
+    output: "Output",
+    recipeButton: "Suggest recipe",
+    recipeBusy: "Generating recipe...",
+    imageButton: "Generate image",
+    imageBusy: "Generating image...",
+    resetButton: "Reset",
+    placeholderRecipe: "Recipe will appear here.",
+    ingredients: "Ingredients",
+    steps: "Steps",
+    overview: "Overview",
+    statusIdle: "Ready to generate.",
+    errorTitle: "Something went wrong",
+    closeError: "Close",
+    recipeErrorFallback:
+      "Could not generate the recipe. Try again in a few seconds.",
+    imageErrorFallback:
+      "Could not generate the image. Try again in a few seconds.",
+  },
+} as const;
+
+function getFriendlyErrorMessage(
+  error: unknown,
+  fallback: string,
+) {
+  if (error instanceof Error && error.message.trim()) {
+    return error.message;
+  }
+
+  return fallback;
 }
 
-export default function Chat() {
-  // Hook to manage chat interactions with AI
-  const { error, messages, isLoading, setInput, handleSubmit, reload, stop } = useChat({
-    keepLastMessageOnError: true, // Option to retain the last message if an error occurs
-  });
+function buildPrompt({
+  time,
+  cuisine,
+  dietaryRestrictions,
+  religiousDiets,
+  language,
+}: {
+  time: string;
+  cuisine: string;
+  dietaryRestrictions: string[];
+  religiousDiets: string[];
+  language: Language;
+}) {
+  const translatedTime = resolveLocalizedSelectionLabel(
+    time,
+    timeOptions,
+    language,
+  );
+  const translatedCuisine = resolveLocalizedSelectionLabel(
+    cuisine,
+    foodOptions,
+    language,
+  );
+  const translatedDietary = dietaryRestrictions.map((item) =>
+    resolveLocalizedSelectionLabel(item, dietaryOptions, language),
+  );
+  const translatedReligious = religiousDiets.map((item) =>
+    resolveLocalizedSelectionLabel(item, religiousOptions, language),
+  );
 
-  // State variables to hold user selections
+  if (language === "es") {
+    return [
+      "Responde en espanol.",
+      `Tiempo disponible: ${translatedTime}.`,
+      `Cocina principal: ${translatedCuisine}.`,
+      translatedDietary.length
+        ? `Restricciones dieteticas: ${translatedDietary.join(", ")}.`
+        : "Restricciones dieteticas: ninguna.",
+      translatedReligious.length
+        ? `Contexto religioso o cultural: ${translatedReligious.join(", ")}.`
+        : "Contexto religioso o cultural: ninguno.",
+      "Genera receta realista y concreta.",
+    ].join("\n");
+  }
+
+  return [
+    "Respond in English.",
+    `Available time: ${translatedTime}.`,
+    `Main cuisine: ${translatedCuisine}.`,
+    translatedDietary.length
+      ? `Dietary restrictions: ${translatedDietary.join(", ")}.`
+      : "Dietary restrictions: none.",
+    translatedReligious.length
+      ? `Religious or cultural context: ${translatedReligious.join(", ")}.`
+      : "Religious or cultural context: none.",
+    "Generate a realistic, concrete recipe.",
+  ].join("\n");
+}
+
+export default function HomePage() {
+  const { language } = useLanguage();
+  const t = copy[language];
+
+  const [selectedModel, setSelectedModel] = useState(FREE_MODELS[0].id);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [selectedFoodType, setSelectedFoodType] = useState<string | null>(null);
-  const [selectedDietaryRestrictions, setSelectedDietaryRestrictions] = useState<string[]>([]);
-  const [selectedReligiousDiets, setSelectedReligiousDiets] = useState<string[]>([]);
-  const [recipeImage, setRecipeImage] = useState<string | null>(null); // State to hold generated recipe image URL
-  const [isImageLoading, setIsImageLoading] = useState<boolean>(false); // State to manage image loading indicator
+  const [selectedDietaryRestrictions, setSelectedDietaryRestrictions] = useState<
+    string[]
+  >([]);
+  const [selectedReligiousDiets, setSelectedReligiousDiets] = useState<string[]>(
+    []
+  );
+  const [recipe, setRecipe] = useState<RecipeResult | null>(null);
+  const [visibleRecipe, setVisibleRecipe] = useState<RecipeResult | null>(null);
+  const [recipeImage, setRecipeImage] = useState<string | null>(null);
+  const [recipeBusy, setRecipeBusy] = useState(false);
+  const [imageBusy, setImageBusy] = useState(false);
+  const [status, setStatus] = useState<string>(t.statusIdle);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Function to validate user selections
-  const validateSelections = useCallback(() => {
-    // Ensure a cooking time and food type are selected
-    if (!selectedTime || !selectedFoodType) {
-      alert("Por favor selecciona al menos un tiempo estimado y la comida que te gustaría comer.");
-      return false;
-    }
+  const dietaryFilters = selectedDietaryRestrictions.filter(
+    (item) => item !== NONE_OPTION_ID
+  );
+  const religiousFilters = selectedReligiousDiets.filter(
+    (item) => item !== NONE_OPTION_ID
+  );
+  const hasInvalidNoneSelection =
+    (selectedDietaryRestrictions.includes(NONE_OPTION_ID) &&
+      selectedDietaryRestrictions.length > 1) ||
+    (selectedReligiousDiets.includes(NONE_OPTION_ID) &&
+      selectedReligiousDiets.length > 1);
+  const canRequestRecipe =
+    Boolean(selectedTime && selectedFoodType) &&
+    !hasInvalidNoneSelection &&
+    !recipeBusy;
+  const canGenerateImage = Boolean(recipe) && !imageBusy;
 
-    // Ensure mutually exclusive options are not selected
-    if (
-      (selectedDietaryRestrictions.includes("Ninguna") && selectedDietaryRestrictions.length > 1) ||
-      (selectedReligiousDiets.includes("Ninguna") && selectedReligiousDiets.length > 1)
-    ) {
-      alert('No puedes seleccionar la opción: "Ninguna" con otras restricciones dietéticas o dietas religiosas.');
-      return false;
-    }
-
-    return true;
-  }, [selectedTime, selectedFoodType, selectedDietaryRestrictions, selectedReligiousDiets]);
-
-  // Function to handle recipe suggestion submission
-  const onSubmit = useCallback(async () => {
-    // Validate selections before proceeding
-    const isValid = validateSelections();
-    if (!isValid) {
-      return; // Exit if validation fails
-    }
-
-    // Create a prompt for the AI based on user selections
-    const prompt = `Sugiera una receta con los siguientes criterios:
-      1. **Tiempo:** ${selectedTime},
-      2. **Tipo de comida:** ${selectedFoodType},
-      ${
-        selectedDietaryRestrictions.length > 0
-          ? `3. **Restricción alimentaria:** ${selectedDietaryRestrictions.join(", ")},`
-          : ""
-      }
-      ${
-        selectedReligiousDiets.length > 0
-          ? `4. **Restricción religiosa:** ${selectedReligiousDiets.join(", ")},`
-          : ""
-      }
-      Por favor, proporcione una receta única que no haya generado anteriormente, que se ajuste a los criterios mencionados anteriormente. Incluya lo siguiente en su respuesta:
-      - **Nombre de la receta**
-      - **Lista de ingredientes**
-      - **Instrucciones paso a paso detalladas**
-      - **Preparación y tiempo de cocción**
-      
-      Asegurese de que la receta es clara, los ingredientes están en medición imperial y que sea fácil de seguir. Gracias!`;
-
-    // Set the input for the AI and submit the request
-    setInput(prompt);
-    await handleSubmit(); // Trigger API call
-  }, [
-    setInput,
-    handleSubmit,
-    validateSelections,
-    selectedTime,
-    selectedFoodType,
-    selectedDietaryRestrictions,
-    selectedReligiousDiets,
-  ]);
-
-  // Function to extract recipe details from AI response
-  const extractRecipeDetails = (content: string) => {
-    // Use regex to extract the recipe name and ingredients from the content
-    const nameMatch = content.match(/(Nombre de la receta|Receta):\s*(.*)/i);
-    const ingredientsMatch = content.match(
-      /(Lista de ingredientes|Ingredientes):\s*([\s\S]*?)\n\n/i
-    );
-
-    const recipeName = nameMatch ? nameMatch[2].trim() : "Receta desconocida";
-    const ingredients = ingredientsMatch ? ingredientsMatch[2].trim() : "";
-
-    return { recipeName, ingredients };
-  };
-
-  // Function to generate an image of the dish
-  const onGenerateImage = useCallback(async () => {
-    // Retrieve the latest recipe generated by the AI
-    const recipeMessage = messages.find((m) => m.role === "assistant");
-
-    // Ensure there is a recipe to generate an image for
-    if (!recipeMessage) {
-      alert("Primero sugiere una receta antes de generar la imagen.");
+  useEffect(() => {
+    if (!recipe) {
+      setVisibleRecipe(null);
       return;
     }
 
-    // Extract relevant details from the recipe
-    const { recipeName, ingredients } = extractRecipeDetails(recipeMessage.content);
+    setVisibleRecipe({
+      title: "",
+      overview: "",
+      ingredients: [],
+      steps: [],
+    });
 
-    // Start image loading process
-    setIsImageLoading(true);
+    const timers: Array<ReturnType<typeof setTimeout>> = [];
+
+    timers.push(
+      setTimeout(() => {
+        setVisibleRecipe((current) =>
+          current
+            ? {
+                ...current,
+                title: recipe.title,
+              }
+            : current,
+        );
+      }, 80),
+    );
+
+    timers.push(
+      setTimeout(() => {
+        setVisibleRecipe((current) =>
+          current
+            ? {
+                ...current,
+                overview: recipe.overview,
+              }
+            : current,
+        );
+      }, 220),
+    );
+
+    recipe.ingredients.forEach((item, index) => {
+      timers.push(
+        setTimeout(() => {
+          setVisibleRecipe((current) =>
+            current
+              ? {
+                  ...current,
+                  ingredients: [...current.ingredients, item],
+                }
+              : current,
+          );
+        }, 360 + index * 90),
+      );
+    });
+
+    recipe.steps.forEach((item, index) => {
+      timers.push(
+        setTimeout(() => {
+          setVisibleRecipe((current) =>
+            current
+              ? {
+                  ...current,
+                  steps: [...current.steps, item],
+                }
+              : current,
+          );
+        }, 620 + recipe.ingredients.length * 90 + index * 120),
+      );
+    });
+
+    return () => {
+      timers.forEach((timer) => clearTimeout(timer));
+    };
+  }, [recipe]);
+
+  async function handleRecipeRequest() {
+    if (!canRequestRecipe || !selectedTime || !selectedFoodType) {
+      return;
+    }
+
+    setRecipeBusy(true);
+    setRecipeImage(null);
+    setStatus(t.recipeBusy);
 
     try {
-      // Make a request to the server to generate an image
-      const imageResponse = await fetch("/api/generateImage", {
+      const response = await fetch("/api/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          description: `Create a high-quality image of a dish named: "${recipeName}". 
-          The dish should feature the following ingredients:"${ingredients}". 
-          The colors should be warm and inviting. 
-          The lighting should be natural daylight coming from a nearby window, casting soft shadows.`,
+          model: selectedModel,
+          language,
+          prompt: buildPrompt({
+            time: selectedTime,
+            cuisine: selectedFoodType,
+            dietaryRestrictions: dietaryFilters,
+            religiousDiets: religiousFilters,
+            language,
+          }),
         }),
       });
 
-      if (!imageResponse.ok) {
-        throw new Error(`HTTP error! status: ${imageResponse.status}`);
+      const data = (await response.json()) as {
+        recipe?: RecipeResult;
+        message?: string;
+      };
+
+      if (!response.ok || !data.recipe) {
+        throw new Error(data.message ?? "Recipe request failed.");
       }
 
-      // Parse the response to get the image URL
-      const imageData = await imageResponse.json();
-      if (imageData.imageUrl) {
-        setRecipeImage(imageData.imageUrl); // Set the image URL in state
-      } else {
-        console.error("Failed to fetch image:", imageData.message);
-      }
+      setRecipe(data.recipe);
+      setStatus(data.recipe.title);
     } catch (error) {
-      console.error("Error fetching image:", error);
+      console.error(error);
+      setStatus(t.statusIdle);
+      setErrorMessage(getFriendlyErrorMessage(error, t.recipeErrorFallback));
     } finally {
-      // Stop the loading process
-      setIsImageLoading(false);
+      setRecipeBusy(false);
     }
-  }, [messages]);
+  }
 
-  // Function to reset the application state
-  const onReset = useCallback(() => {
-    // Reset all selections and input fields
+  async function handleGenerateImage() {
+    if (!recipe || !canGenerateImage) {
+      return;
+    }
+
+    setImageBusy(true);
+    setStatus(t.imageBusy);
+
+    try {
+      const response = await fetch("/api/generateImage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          recipe,
+        }),
+      });
+
+      const data = (await response.json()) as {
+        imageUrl?: string;
+        message?: string;
+      };
+
+      if (!response.ok || !data.imageUrl) {
+        throw new Error(data.message ?? "Image request failed.");
+      }
+
+      setRecipeImage(data.imageUrl);
+      setStatus(recipe.title);
+    } catch (error) {
+      console.error(error);
+      setStatus(recipe.title);
+      setErrorMessage(getFriendlyErrorMessage(error, t.imageErrorFallback));
+    } finally {
+      setImageBusy(false);
+    }
+  }
+
+  function handleReset() {
     setSelectedTime(null);
     setSelectedFoodType(null);
     setSelectedDietaryRestrictions([]);
     setSelectedReligiousDiets([]);
+    setRecipe(null);
+    setVisibleRecipe(null);
     setRecipeImage(null);
-    setInput("");
-    window.location.reload(); // Reload the page
-  }, [setInput]);
+    setStatus(t.statusIdle);
+    setErrorMessage(null);
+  }
 
   return (
-    <div className="flex flex-col items-center w-full max-w-2xl py-24 mx-auto">
-      <header className="mb-6 text-center">
-        <h1 className="text-3xl font-bold">Recetario Inteligente</h1>
-      </header>
-      <TimeSelector onSelectTime={setSelectedTime} />
-      <FoodTypeSelector onSelectFoodType={setSelectedFoodType} />
-      <DietaryRestrictionsSelector
-        onSelectRestriction={setSelectedDietaryRestrictions}
-      />
-      <ReligiousDietsSelector onSelectRestriction={setSelectedReligiousDiets} />
-
-      <div className="flex w-full space-x-2 mt-5">
-        <button type="button" onClick={onSubmit} className="w-full btn">
-          Sugerir Receta
-        </button>
-
-        <button type="button" onClick={onGenerateImage} className="w-full btn">
-          Generar Imagen
-        </button>
-
-        <button type="button" onClick={onReset} className="w-full btn">
-          Iniciar Nuevamente
-        </button>
-      </div>
-
-      {isLoading && (
-        <div className="mt-4 text-gray-500">
-          <div>Cargando...</div>
-          <button
-            type="button"
-            className="px-4 py-2 mt-4 text-blue-500 border border-blue-500 rounded-md"
-            onClick={stop}
-          >
-            Detener
-          </button>
-        </div>
-      )}
-
-      {error && (
-        <div className="mt-4">
-          <div className="text-red-500">Un error ha ocurrido.</div>
-          <button
-            type="button"
-            className="px-4 py-2 mt-4 text-blue-500 border border-blue-500 rounded-md"
-            onClick={() => reload()}
-          >
-            Reintentar
-          </button>
-        </div>
-      )}
-
-      {/* Render the loading indicator when image generation is in progress */}
-      {isImageLoading && (
-        <div className="mt-4 text-gray-500">Generando imagen...</div>
-      )}
-
-      <div className="mt-4 p-4 bg-white rounded shadow w-full">
-        {messages
-          .filter((m) => m.role === "assistant")
-          .map((m) => (
-            <div key={m.id} className="whitespace-pre-wrap mb-6">
-              <p className="text-lg font-medium mb-2">Platillo recomendado:</p>
-              <p className="p-4 bg-gray-100 rounded-md">{m.content}</p>
+    <main>
+      <SiteHeader />
+      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="space-y-8">
+          <div className="shell-frame rounded-2xl p-5">
+            <p className="section-label">{t.model}</p>
+            <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto_auto_auto]">
+              <div className="min-w-0">
+                <select
+                  value={selectedModel}
+                  onChange={(event) => setSelectedModel(event.target.value)}
+                  className="h-12 w-full rounded-md border border-border bg-[#101010] px-4 text-sm text-foreground focus:border-accent focus:outline-none"
+                  style={{ backgroundColor: "#101010", color: "#f2f2f2" }}
+                >
+                  {FREE_MODELS.map((model) => (
+                    <option
+                      key={model.id}
+                      value={model.id}
+                      style={{ backgroundColor: "#101010", color: "#f2f2f2" }}
+                    >
+                      {model.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <Button onClick={handleRecipeRequest} disabled={!canRequestRecipe}>
+                {recipeBusy ? t.recipeBusy : t.recipeButton}
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={handleGenerateImage}
+                disabled={!canGenerateImage}
+              >
+                {imageBusy ? t.imageBusy : t.imageButton}
+              </Button>
+              <Button variant="outline" onClick={handleReset}>
+                {t.resetButton}
+              </Button>
             </div>
-          ))}
-        {recipeImage &&
-          !isImageLoading && ( // Only show the image when not loading
-            <div className="mt-4">
-              <p className="text-lg font-medium mb-2">Imagen del platillo:</p>
-              <Image
-                src={recipeImage}
-                alt="Generated dish"
-                width={512}
-                height={512}
-                className="w-full rounded-md"
-              />
-            </div>
-          )}
-      </div>
+            <p className="mt-4 text-sm text-muted" aria-live="polite">
+              {status}
+            </p>
+          </div>
 
-      <footer className="mt-12 text-center text-gray-500">
-        © {new Date().getFullYear()}{" "}
-        <a href="https://www.camilooviedo.com/" className="hover:underline">
-          Camilo Oviedo
-        </a>
-        . Almost all Rights Reserved.
-      </footer>
-    </div>
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <p className="section-label">{t.controls}</p>
+              <div className="grid items-stretch gap-4 md:grid-cols-2">
+                <TimeSelector onSelectTime={setSelectedTime} value={selectedTime} />
+                <FoodTypeSelector
+                  onSelectFoodType={setSelectedFoodType}
+                  value={selectedFoodType}
+                />
+                <DietaryRestrictionsSelector
+                  onSelectRestriction={setSelectedDietaryRestrictions}
+                  value={selectedDietaryRestrictions}
+                />
+                <ReligiousDietsSelector
+                  onSelectRestriction={setSelectedReligiousDiets}
+                  value={selectedReligiousDiets}
+                />
+              </div>
+            </div>
+
+            <div className="border-t border-border/70 pt-8" />
+
+            <div className="grid gap-8 lg:grid-cols-2">
+              <div className="shell-frame rounded-2xl p-5">
+                <p className="section-label">{t.output}</p>
+                {visibleRecipe ? (
+                  <div className="mt-4 space-y-4 overflow-visible">
+                    <div className="min-w-0">
+                      <h2 className="break-words font-heading text-3xl font-medium heading-tight">
+                        {visibleRecipe.title || "..."}
+                      </h2>
+                      <p className="mt-3 whitespace-pre-wrap break-words text-sm leading-7 text-muted">
+                        {visibleRecipe.overview}
+                      </p>
+                    </div>
+                    <details open className="rounded-2xl border border-border bg-black/10 p-4">
+                      <summary className="cursor-pointer text-sm font-medium text-accent-soft">
+                        {t.ingredients}
+                      </summary>
+                      <ul className="mt-3 space-y-2 text-sm leading-7 text-muted">
+                        {visibleRecipe.ingredients.map((item) => (
+                          <li key={item} className="whitespace-pre-wrap break-words">
+                            - {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                    <details open className="rounded-2xl border border-border bg-black/10 p-4">
+                      <summary className="cursor-pointer text-sm font-medium text-accent-soft">
+                        {t.steps}
+                      </summary>
+                      <ol className="mt-3 space-y-2 text-sm leading-7 text-muted">
+                        {visibleRecipe.steps.map((item, index) => (
+                          <li
+                            key={`${index + 1}-${item}`}
+                            className="whitespace-pre-wrap break-words"
+                          >
+                            {index + 1}. {item}
+                          </li>
+                        ))}
+                      </ol>
+                    </details>
+                  </div>
+                ) : (
+                  <p className="mt-4 text-sm text-subtle">{t.placeholderRecipe}</p>
+                )}
+              </div>
+
+              <div className="space-y-6">
+                <div className="overflow-hidden rounded-2xl border border-border">
+                  {recipeImage ? (
+                  <Image
+                    src={recipeImage}
+                    alt={recipe?.title ?? "Dish preview"}
+                    width={1024}
+                    height={1024}
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    unoptimized
+                    className="aspect-square w-full object-cover"
+                  />
+                  ) : (
+                    <div className="aspect-square rounded-2xl border border-dashed border-border" />
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <SiteFooter />
+      {errorMessage ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+          <div
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="error-title"
+            className="shell-frame w-full max-w-md rounded-2xl p-5"
+          >
+            <p id="error-title" className="font-heading text-xl text-foreground">
+              {t.errorTitle}
+            </p>
+            <p className="mt-3 text-sm leading-6 text-muted">{errorMessage}</p>
+            <div className="mt-5 flex justify-end">
+              <Button size="sm" onClick={() => setErrorMessage(null)}>
+                {t.closeError}
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </main>
   );
 }

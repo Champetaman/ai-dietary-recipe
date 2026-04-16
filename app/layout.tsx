@@ -1,34 +1,90 @@
-import { Analytics } from "@vercel/analytics/react"; // Importing Vercel Analytics for tracking user interactions
-import type { Metadata } from "next"; // Importing Metadata type for defining page metadata
-import { Inter } from "next/font/google"; // Importing Google Fonts
-import "./globals.css"; // Importing global CSS styles
-import Head from "next/head"; // Importing Head for managing <head> content
+import { Analytics } from "@vercel/analytics/react";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 
-// Load the Inter font from Google Fonts with Latin subset support
-const inter = Inter({ subsets: ["latin"] });
+import { ClayBackground } from "@/components/ClayBackground";
+import { LanguageProvider } from "@/components/LanguageProvider";
 
-// Define metadata for the application
+import "./globals.css";
+
+const bodyFont = Inter({
+  subsets: ["latin"],
+  variable: "--font-body-ui",
+});
+
+const appUrl =
+  process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
-  title: "Recetario Inteligente", // Title of the application
+  metadataBase: new URL(appUrl),
+  applicationName: "AI Recipe Studio",
+  title: {
+    default: "AI Recipe Studio | Bilingual AI Recipe Generator",
+    template: "%s | AI Recipe Studio",
+  },
   description:
-    "Recetario Inteligente es una aplicación web que sugiere recetas en función de parámetros seleccionados por el usuario, como la hora del día, el tipo de comida, las restricciones dietéticas y la dieta religiosa.", // Description of the application
+    "Professional bilingual recipe generator with AI-powered dish recommendations and image generation based on cooking time, cuisine, dietary restrictions, and religious diet preferences.",
+  keywords: [
+    "AI recipe generator",
+    "recipe suggestions",
+    "dish image generation",
+    "bilingual cooking app",
+    "OpenRouter recipes",
+    "meal planning",
+    "cooking assistant",
+  ],
+  authors: [{ name: "Camilo Oviedo", url: "https://www.camilooviedo.com/" }],
+  creator: "Camilo Oviedo",
+  publisher: "AI Recipe Studio",
+  category: "food",
+  alternates: {
+    canonical: "/",
+    languages: {
+      en: "/",
+      es: "/",
+    },
+  },
+  openGraph: {
+    type: "website",
+    url: appUrl,
+    siteName: "AI Recipe Studio",
+    title: "AI Recipe Studio | Bilingual AI Recipe Generator",
+    description:
+      "Generate structured recipes and dish visuals with AI using cuisine, time, and dietary preferences.",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AI Recipe Studio | Bilingual AI Recipe Generator",
+    description:
+      "Generate structured recipes and dish visuals with AI using cuisine, time, and dietary preferences.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   icons: {
     icon: "/favicon.ico",
   },
 };
 
-// RootLayout component definition
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode; // The children components to be rendered within the layout
+  children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
-      <body className={inter.className}>
-        {/* Render child components */}
-        {children}
-        {/* Include Vercel Analytics for tracking user interactions */}
+    <html lang="en">
+      <body className={`${bodyFont.variable} font-sans`}>
+        <ClayBackground />
+        <LanguageProvider>{children}</LanguageProvider>
         <Analytics />
       </body>
     </html>

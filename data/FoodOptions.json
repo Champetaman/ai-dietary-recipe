@@ -1,14 +1,71 @@
 {
-  "header": "¿Qué tipo de comida te gustaría comer?",
+  "header": {
+    "es": "¿Qué tipo de comida te gustaría comer?",
+    "en": "What kind of cuisine would you like to eat?"
+  },
   "options": [
-    "India",
-    "Mexicana",
-    "Libanesa",
-    "Japonesa",
-    "China",
-    "Española",
-    "Francesa",
-    "Italiana",
-    "Colombiana"
+    {
+      "id": "indian",
+      "label": {
+        "es": "India",
+        "en": "Indian"
+      }
+    },
+    {
+      "id": "mexican",
+      "label": {
+        "es": "Mexicana",
+        "en": "Mexican"
+      }
+    },
+    {
+      "id": "lebanese",
+      "label": {
+        "es": "Libanesa",
+        "en": "Lebanese"
+      }
+    },
+    {
+      "id": "japanese",
+      "label": {
+        "es": "Japonesa",
+        "en": "Japanese"
+      }
+    },
+    {
+      "id": "chinese",
+      "label": {
+        "es": "China",
+        "en": "Chinese"
+      }
+    },
+    {
+      "id": "spanish",
+      "label": {
+        "es": "Española",
+        "en": "Spanish"
+      }
+    },
+    {
+      "id": "french",
+      "label": {
+        "es": "Francesa",
+        "en": "French"
+      }
+    },
+    {
+      "id": "italian",
+      "label": {
+        "es": "Italiana",
+        "en": "Italian"
+      }
+    },
+    {
+      "id": "colombian",
+      "label": {
+        "es": "Colombiana",
+        "en": "Colombian"
+      }
+    }
   ]
 }

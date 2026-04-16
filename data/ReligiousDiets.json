@@ -1,4 +1,43 @@
 {
-  "header": "¿Tienes alguna dieta religiosa?",
-  "options": ["Halal", "Kosher", "Hindú", "Budista", "Ninguna"]
+  "header": {
+    "es": "¿Tienes alguna dieta religiosa?",
+    "en": "Do you follow a religious diet?"
+  },
+  "options": [
+    {
+      "id": "halal",
+      "label": {
+        "es": "Halal",
+        "en": "Halal"
+      }
+    },
+    {
+      "id": "kosher",
+      "label": {
+        "es": "Kosher",
+        "en": "Kosher"
+      }
+    },
+    {
+      "id": "hindu",
+      "label": {
+        "es": "Hindú",
+        "en": "Hindu"
+      }
+    },
+    {
+      "id": "buddhist",
+      "label": {
+        "es": "Budista",
+        "en": "Buddhist"
+      }
+    },
+    {
+      "id": "none",
+      "label": {
+        "es": "Ninguna",
+        "en": "None"
+      }
+    }
+  ]
 }

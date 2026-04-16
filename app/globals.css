@@ -1,37 +1,178 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-/* General body styles */
-body {
-  @apply text-gray-800 bg-white relative;
-  background-image: linear-gradient(to right, #8080800a 1px, transparent 1px),
-    linear-gradient(to bottom, #8080800a 1px, transparent 1px);
-  background-size: 14px 24px;
+@theme inline {
+  --font-sans: var(--font-body-ui);
+  --font-heading:
+    var(--font-display-ui), system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --font-mono:
+    var(--font-mono-ui), "SFMono-Regular", Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+
+  --color-background: #050507;
+  --color-surface: #101010;
+  --color-surface-soft: #161616;
+  --color-foreground: #f2f2f2;
+  --color-muted: #b8b3b0;
+  --color-subtle: #8b949e;
+  --color-border: #3d3a39;
+  --color-accent: #00d992;
+  --color-accent-soft: #2fd6a1;
+  --color-success: #008b00;
+  --color-warning: #ffba00;
+  --color-danger: #fb565b;
+  --color-info: #4cb3d4;
+
+  --shadow-panel: 0 0 15px rgba(92, 88, 85, 0.2);
+  --shadow-float:
+    0 20px 60px rgba(0, 0, 0, 0.7),
+    inset 0 0 0 1px rgba(148, 163, 184, 0.1);
+
+  --animate-signal-pulse: signal-pulse 5s ease-in-out infinite;
+  --animate-signal-drift: signal-drift 16s ease-in-out infinite;
+  --animate-signal-drift-delayed: signal-drift-delayed 18s ease-in-out infinite;
+  --animate-signal-float: signal-float 20s ease-in-out infinite;
+
+  @keyframes signal-pulse {
+    0%,
+    100% {
+      box-shadow:
+        0 0 0 1px rgba(0, 217, 146, 0.25),
+        0 0 8px rgba(0, 217, 146, 0.15);
+    }
+    50% {
+      box-shadow:
+        0 0 0 1px rgba(0, 217, 146, 0.45),
+        0 0 20px rgba(0, 217, 146, 0.3);
+    }
+  }
+
+  @keyframes signal-drift {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+    50% {
+      transform: translate3d(0, 18px, 0);
+    }
+  }
+
+  @keyframes signal-drift-delayed {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+    50% {
+      transform: translate3d(-18px, -12px, 0);
+    }
+  }
+
+  @keyframes signal-float {
+    0%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+    50% {
+      transform: translate3d(22px, -20px, 0);
+    }
+  }
 }
 
-/* Decorative element before the body */
-body::before {
-  content: "";
-  @apply absolute left-1/2 transform -translate-x-1/2 top-0 -z-10 h-[310px] w-[310px] rounded-full bg-fuchsia-400 opacity-20 blur-[100px];
+@layer base {
+  * {
+    box-sizing: border-box;
+    border-color: var(--color-border);
+  }
+
+  :root {
+    --surface: var(--color-surface);
+    --border: var(--color-border);
+    --border-strong: var(--color-accent);
+    --text: var(--color-foreground);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-body-ui), sans-serif;
+    font-feature-settings: "calt" 1, "rlig" 1;
+    text-rendering: optimizeLegibility;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  ::selection {
+    background: rgba(0, 217, 146, 0.2);
+    color: var(--color-foreground);
+  }
 }
 
-/* Heading styles */
-h2 {
-  @apply text-xl font-semibold mb-4;
+@utility shell-frame {
+  border: 1px solid rgba(61, 58, 57, 0.95);
+  background: linear-gradient(
+    180deg,
+    rgba(16, 16, 16, 0.96) 0%,
+    rgba(9, 9, 9, 0.92) 100%
+  );
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(16px);
 }
 
-/* Button styles */
-.btn {
-  @apply px-4 py-2 m-1 text-blue-500 bg-white border border-blue-500 rounded-md hover:bg-blue-500 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500;
+@utility subtle-text {
+  color: var(--color-muted);
 }
 
-/* Selected button styles */
-.btn-selected {
-  @apply text-white bg-blue-500;
+@utility section-label {
+  color: var(--color-subtle);
+  font-family:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
 }
 
-/* Unselected button styles */
-.btn-unselected {
-  @apply text-blue-500 bg-white border border-blue-500;
+@utility signal-text {
+  color: var(--color-accent);
+  text-shadow: 0 0 10px rgba(0, 217, 146, 0.2);
+}
+
+@utility heading-tight {
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+}
+
+@utility mono-panel {
+  border: 1px solid rgba(61, 58, 57, 0.95);
+  background: rgba(5, 5, 7, 0.8);
+  font-family:
+    "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }

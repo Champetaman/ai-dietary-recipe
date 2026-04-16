@@ -1,12 +1,57 @@
 {
-  "header": "¿Tienes alguna restricción con tu alimentación?",
+  "header": {
+    "es": "¿Tienes alguna restricción con tu alimentación?",
+    "en": "Do you have any dietary restrictions?"
+  },
   "options": [
-    "Vegetariano",
-    "Vegano",
-    "Sin gluten",
-    "Sin lactosa",
-    "Keto",
-    "Paleo",
-    "Ninguna"
+    {
+      "id": "vegetarian",
+      "label": {
+        "es": "Vegetariano",
+        "en": "Vegetarian"
+      }
+    },
+    {
+      "id": "vegan",
+      "label": {
+        "es": "Vegano",
+        "en": "Vegan"
+      }
+    },
+    {
+      "id": "gluten-free",
+      "label": {
+        "es": "Sin gluten",
+        "en": "Gluten free"
+      }
+    },
+    {
+      "id": "lactose-free",
+      "label": {
+        "es": "Sin lactosa",
+        "en": "Lactose free"
+      }
+    },
+    {
+      "id": "keto",
+      "label": {
+        "es": "Keto",
+        "en": "Keto"
+      }
+    },
+    {
+      "id": "paleo",
+      "label": {
+        "es": "Paleo",
+        "en": "Paleo"
+      }
+    },
+    {
+      "id": "none",
+      "label": {
+        "es": "Ninguna",
+        "en": "None"
+      }
+    }
   ]
 }

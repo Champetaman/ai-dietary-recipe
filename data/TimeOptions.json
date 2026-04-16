@@ -1,4 +1,50 @@
 {
-  "header": "¿Cuánto tiempo tienes para preparar tus alimentos?",
-  "options": ["15 min", "30 min", "45 min", "1 hora", "2 horas", "+2 horas"]
+  "header": {
+    "es": "¿Tiempo para preparar tus alimentos?",
+    "en": "How much time do you have to cook?"
+  },
+  "options": [
+    {
+      "id": "15-min",
+      "label": {
+        "es": "15 min",
+        "en": "15 min"
+      }
+    },
+    {
+      "id": "30-min",
+      "label": {
+        "es": "30 min",
+        "en": "30 min"
+      }
+    },
+    {
+      "id": "45-min",
+      "label": {
+        "es": "45 min",
+        "en": "45 min"
+      }
+    },
+    {
+      "id": "1-hour",
+      "label": {
+        "es": "1 hora",
+        "en": "1 hour"
+      }
+    },
+    {
+      "id": "2-hours",
+      "label": {
+        "es": "2 horas",
+        "en": "2 hours"
+      }
+    },
+    {
+      "id": "2-plus-hours",
+      "label": {
+        "es": "+2 horas",
+        "en": "2+ hours"
+      }
+    }
+  ]
 }
