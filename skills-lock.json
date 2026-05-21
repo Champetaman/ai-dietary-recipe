@@ -4,7 +4,8 @@
     "caveman": {
       "source": "juliusbrussee/caveman",
       "sourceType": "github",
-      "computedHash": "ac5fb2168c653fa5d660b5f510a4688d210717c7e10eb8fd91ef0d9b59f4e96e"
+      "skillPath": "skills/caveman/SKILL.md",
+      "computedHash": "7935e83f9c6a8b7cbb5404d144b0d19e3ba93583f4388301c3dada37cd25adf8"
     },
     "find-skills": {
       "source": "vercel-labs/skills",
